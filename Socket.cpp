@@ -56,6 +56,7 @@ void NaviRice::Networking::Socket::listen(std::string ipAddress, int port) {
             receiveParams.socket = this;
             receiveParams.descriptor = clientDescriptor;
             pthread_create(&clientThread, NULL, receive, &receiveParams);
+            pthread_detach(clientThread);
         }
     }
 }

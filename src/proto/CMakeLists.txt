@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.5)
+INCLUDE(FindProtobuf)
+FIND_PACKAGE(Protobuf REQUIRED)
+INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIR})
+PROTOBUF_GENERATE_CPP(PROTO_SRC PROTO_HEADER control_payload.proto data_header_payload.proto header_message.proto location_model.proto)
+ADD_LIBRARY(proto ${PROTO_HEADER} ${PROTO_SRC})
+TARGET_LINK_LIBRARIES(proto ${PROTOBUF_LIBRARY})

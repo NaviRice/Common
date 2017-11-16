@@ -22,9 +22,7 @@ void NaviRice::Networking::Service::start() {
     socket.onReceiveData([&service](NaviRice::Networking::Buffer buffer) -> void {
         std::cout << "Server received: " << buffer.data << std::endl;
         Message message;
-        message.header = protocol::MessageHeader::Par
-        message.data = buffer;
-        service->onReceiveData(buffer);
+        service->onReceiveData(message);
     });
     socket.onAcceptConnection([&service](sockaddr_in clientAddress)->void {
         char ipAddressStr[INET_ADDRSTRLEN];

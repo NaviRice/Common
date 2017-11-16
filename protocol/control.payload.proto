@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package protocol;
+
+message ControlPayload {
+    enum Command {
+        REQUEST_STATE = 0;
+    }
+
+    Command command = 1;
+}

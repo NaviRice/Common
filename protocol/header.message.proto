@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package protocol;
+package navirice.proto;
 
-message MessageHeader {
+message Request {
 
     enum MessageType {
         CONTROL = 0;
@@ -18,10 +18,11 @@ message MessageHeader {
         IMAGE_PROVIDING = 5;
     }
 
-    int32 version = 1;
+    int32 sequenceID = 1;
     MessageType type = 2;
-    int32 sequenceID = 3;
+
     int32 payloadLength = 4;
     Service sourceService = 5;
     Service destinationService = 6;
+//    bytes payload =
 }

@@ -5,11 +5,17 @@ INCLUDE(FINDPROTOBUF)
 
 ADD_SUBDIRECTORY(proto)
 
-SET(SOURCE_FILES SERVICE.CPP SOCKET.CPP)
+SET(SOURCE_FILES Service.cpp Socket.cpp Server.cpp Client.cpp)
 
 SET(LIBRARIES proto)
 
 INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIR})
 
+add_executable (server Socket.cpp Server.cpp)
+add_executable (client Socket.cpp Client.cpp)
+
 ADD_LIBRARY(common ${SOURCE_FILES})
 TARGET_LINK_LIBRARIES(common ${LIBRARIES})
+
+TARGET_LINK_LIBRARIES(server ${LIBRARIES})
+TARGET_LINK_LIBRARIES(client ${LIBRARIES})

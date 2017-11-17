@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package navirice.proto;
+
+import "service.proto";
+import "content_type.proto";
+
+message Request {
+    enum Command {
+        INDEX = 0;
+        CREATE = 1;
+        SHOW = 2;
+        UPDATE = 3;
+        DESTROY = 4;
+        SUBSCRIBE = 5;
+        UNSUBSCRIBE = 6;
+    }
+
+    Command command = 1;
+    string resource = 2;
+    string options = 3;
+    Service source = 4;
+    Service destination = 5;
+    sint64 time = 6;
+    ContentType contentType = 7;
+    int32 payloadLength = 8;
+    bytes body = 9;
+}

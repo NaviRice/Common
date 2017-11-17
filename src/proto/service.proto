@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package navirice.proto;
+
+enum Service {
+    COMPUTER_VISION = 0;
+    MACHINE_LEARNING = 1;
+    GEOMETRY_PROCESSING = 2;
+    RENDERING = 3;
+    HEAD_TRACKING = 4;
+    IMAGE_PROVIDING = 5;
+}

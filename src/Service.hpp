@@ -6,17 +6,13 @@
 #define SERVICE_H
 
 #include "Socket.hpp"
-#include "src/proto/header_message.pb.h"
+#include "src/proto/response.pb.h"
 
 namespace NaviRice {
 	namespace Networking {
 		class Service {
-			struct Message {
-				navirice::proto::Request header;
-				char data[BUFFER_SIZE];
-			};
 			protected:
-			NaviRice::Networking::Socket socket;
+			NaviRice::Networking::Socket server;
 			std::string name;
 			std::string ipAddress;
 			int port;
@@ -26,7 +22,7 @@ namespace NaviRice {
 
 			virtual void onAcceptConnection(sockaddr_in clientAddress) {};
 
-			virtual void onReceiveData(Message) {};
+			virtual void onReceiveData(navirice::proto::Response) {};
 
 			Service(std::string, std::string, int);
 

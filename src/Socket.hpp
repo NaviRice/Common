@@ -28,10 +28,12 @@ namespace NaviRice {
             };
 
             std::function<void()> onWaitingForConnectionCallback;
+            std::function<void()> onConnectedCallback;
 
             std::function<void(sockaddr_in)> onAcceptConnectionCallback;
 
-            std::function<void(Buffer)> onReceiveDataCallback;
+            std::function<void(int, Buffer)> onReceiveDataCallback;
+
 
             static void *receive(void *);
 
@@ -50,8 +52,9 @@ namespace NaviRice {
             void close();
 
             void onWaitingForConnection(std::function<void()> onWaitingForConnectionCallback);
+            void onConnected(std::function<void()> onConnectedCallback);
             void onAcceptConnection(std::function<void(sockaddr_in)> onAcceptConnectionCallback);
-            void onReceiveData(std::function<void(Buffer)> onReceiveDataCallback);
+            void onReceiveData(std::function<void(int, Buffer)> onReceiveDataCallback);
         };
     }
 }

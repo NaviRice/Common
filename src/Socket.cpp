@@ -42,19 +42,18 @@ void NaviRice::Networking::Socket::listen(std::string ipAddress, int port) {
 
     this->onWaitingForConnectionCallback();
 
-    pthread_t clientThread;
-
     while (true) {
         int clientDescriptor;
         struct sockaddr_in clientAddress;
         int clientAddressLen = sizeof(clientAddress);
         if ((clientDescriptor = accept(this->descriptor, (struct sockaddr *) &address,
-                                       (socklen_t *) &clientAddressLen)) >= 0) {
+                                       (socklen_t *) &clientAddressLen)) > 0) {
             this->onAcceptConnectionCallback(clientAddress);
-            std::cout << "Accept incoming connection" << std::endl;
             struct ReceiveParams receiveParams;
             receiveParams.socket = this;
             receiveParams.descriptor = clientDescriptor;
+
+            pthread_t clientThread;
             pthread_create(&clientThread, NULL, receive, &receiveParams);
             pthread_detach(clientThread);
         }
@@ -64,9 +63,11 @@ void NaviRice::Networking::Socket::listen(std::string ipAddress, int port) {
 void *NaviRice::Networking::Socket::receive(void *receiveParams) {
     struct Buffer buffer;
     struct ReceiveParams params = *((struct ReceiveParams *) receiveParams);
-    buffer.length = read(params.descriptor, buffer.data, BUFFER_SIZE);
-    params.socket->onReceiveDataCallback(buffer);
-    return nullptr;
+
+    while (true) {
+        if ((buffer.length = read(params.descriptor, buffer.data, BUFFER_SIZE)) > 0)
+            params.socket->onReceiveDataCallback(params.descriptor, buffer);
+    }
 }
 
 int NaviRice::Networking::Socket::send(int clientDescriptor, void *buffer, size_t length) {
@@ -79,12 +80,23 @@ int NaviRice::Networking::Socket::send(void *buffer, size_t length) {
 
 void NaviRice::Networking::Socket::connect(std::string ipAddress, int port) {
     struct sockaddr_in address = toSockAddress(ipAddress, port);
-    std::cout << "Connect to " << ipAddress << std::endl;
     if (::connect(this->descriptor, (struct sockaddr *) &address, sizeof(address)) < 0) {
         std::string error = "Fail to connect to server at " + ipAddress + ":" + std::to_string(port);
         std::perror(error.c_str());
     }
+    this->onConnectedCallback();
+
+    pthread_t clientThread;
+
+    struct ReceiveParams receiveParams;
+    receiveParams.socket = this;
+    receiveParams.descriptor = this->descriptor;
+
+    pthread_create(&clientThread, NULL, receive, &receiveParams);
+    pthread_detach(clientThread);
+
 }
+
 
 struct sockaddr_in NaviRice::Networking::Socket::toSockAddress(std::string ipAddress, int port) {
     struct sockaddr_in address;
@@ -100,7 +112,7 @@ void NaviRice::Networking::Socket::close() {
     ::close(this->descriptor);
 }
 
-void NaviRice::Networking::Socket::onReceiveData(std::function<void(Buffer)> onReceiveDataCallback) {
+void NaviRice::Networking::Socket::onReceiveData(std::function<void(int, Buffer)> onReceiveDataCallback) {
     this->onReceiveDataCallback = onReceiveDataCallback;
 }
 
@@ -110,4 +122,8 @@ void NaviRice::Networking::Socket::onWaitingForConnection(std::function<void()> 
 
 void  NaviRice::Networking::Socket::onAcceptConnection(std::function<void(sockaddr_in)> onAcceptConnectionCallback) {
     this->onAcceptConnectionCallback = onAcceptConnectionCallback;
+}
+
+void NaviRice::Networking::Socket::onConnected(std::function<void()> onConnectedCallback) {
+    this->onConnectedCallback = onConnectedCallback;
 }

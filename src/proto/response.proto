@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package navirice.proto;
+
+import "service.proto";
+import "content_type.proto";
+
+message Response {
+    enum Status {
+        SUCCESS = 0;
+        BAD_REQUEST = 1;
+        FORBIDDEN = 2;
+        NOT_FOUND = 3;
+        SERVER_INTERNAL_ERROR = 4;
+        NOT_IMPLEMENTED = 5;
+    }
+
+    string resource = 1;
+    Status status = 2;
+    Service source = 3;
+    Service destination = 4;
+    sint64 time = 5;
+    ContentType contentType = 6;
+    int32 payloadLength = 7;
+    bytes body = 8;
+}

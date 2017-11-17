@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
-project(Common)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
+PROJECT(common)
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
-add_subdirectory(src)
+ADD_SUBDIRECTORY(src)

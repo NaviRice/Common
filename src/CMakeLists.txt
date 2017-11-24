@@ -5,9 +5,13 @@ INCLUDE(FindProtobuf)
 
 ADD_SUBDIRECTORY(proto)
 
+# Threads
+FIND_PACKAGE(Threads REQUIRED)
+
 SET(SOURCE_FILES Service.cpp Socket.cpp Server.cpp Client.cpp)
 
-SET(LIBRARIES proto)
+SET(LIBRARIES proto ${CMAKE_THREAD_LIBS_INIT})
+
 
 INCLUDE_DIRECTORIES(${PROTOBUF_INCLUDE_DIR})
 

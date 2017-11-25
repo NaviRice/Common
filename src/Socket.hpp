@@ -6,6 +6,7 @@
 #define SOCKET_H
 
 #include <string>
+#include <functional>
 
 #define MAX_CONNECTION 10
 #define BUFFER_SIZE 1024
@@ -35,11 +36,16 @@ namespace NaviRice {
             std::function<void(int, Buffer)> onReceiveDataCallback;
 
 
-            static void *receive(void *);
+            void receive(void *);
+			
+			bool async_listen_online;
 
         public:
 
             Socket();
+
+			void listen_async_stop();
+			void listen_async(std::string, int);
 
             void listen(std::string, int);
 

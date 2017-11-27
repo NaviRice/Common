@@ -3,37 +3,59 @@
 //
 
 #include <iostream>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#include <iomanip>
 #include "Service.hpp"
 
-//NaviRice::Networking::Service::Service(std::string name, std::string ipAddress, int port) {
-//    this->name = name;
-//    this->ipAddress = ipAddress;
-//    this->port = port;
-//}
-//
-//void NaviRice::Networking::Service::start() {
-//    Service *service = this;
-//    server.onWaitingForConnection([&service](void) -> void {
-//        std::cout << "Waiting for connection" << std::endl;
-//        service->onWaitingForConnection();
-//    });
-//    server.onReceiveData([&service](NaviRice::Networking::Buffer buffer) -> void {
-//        navirice::proto::Response response;
-//        response.ParseFromString(buffer.data);
-//        std::cout << "Server received: " << response.DebugString() << std::endl;
-//        service->onReceiveData(response);
-//    });
-//    server.onAcceptConnection([&service](sockaddr_in clientAddress)->void {
-//        char ipAddressStr[INET_ADDRSTRLEN];
-//        inet_ntop( AF_INET, &clientAddress.sin_addr, ipAddressStr, INET_ADDRSTRLEN );
-//        std::cout << "Client connected: " << ipAddressStr << std::endl;
-//        service->onAcceptConnection(clientAddress);
-//    });
-//    server.listen(this->ipAddress, this->port);
-//}
-//
-//void NaviRice::Networking::Service::stop() {
-//    server.close();
-//}
+static const char *SERVICE_NAMES[] = {
+    "COMPUTER_VISION",
+    "MACHINE_LEARNING",
+    "GEOMETRY_PROCESSING",
+    "RENDERING",
+    "HEAD_TRACKING",
+    "IMAGE_PROVIDING"
+};
+
+NaviRice::Networking::Service::Service(std::string ipAddress, int port, std::string name,
+                                       navirice::proto::Service serviceType) {
+    server = new NaviRice::Networking::Server(ipAddress, port);
+    this->name = name;
+    this->serviceType = serviceType;
+}
+
+void NaviRice::Networking::Service::start() {
+    server->onReceiveData([](int clientDescriptor, navirice::proto::Request request) {
+        std::cout << "Command: " << request.command() << std::endl;
+        std::cout << "Resource: " << request.resource() << std::endl;
+        std::cout << "Options: " << request.options() << std::endl;
+    });
+    server->onAcceptConnection([](sockaddr_in clientIp) {
+
+    });
+    server->onWaitingForConnection([this]() {
+        this->log("Service started.");
+    });
+    server->start();
+}
+
+void NaviRice::Networking::Service::addRoute(navirice::proto::Request_Command command, std::string path,
+                                             std::function<void(std::map<int, std::string> params,
+                                                                std::map<int, std::string> options,
+                                                                void *body)> handler) {
+    Route route;
+    route.command = command;
+    route.path = path;
+    route.handler = handler;
+
+    routes.push_back(route);
+}
+
+void NaviRice::Networking::Service::stop() {
+    server->stop();
+}
+
+void NaviRice::Networking::Service::log(std::string message) {
+    std::time_t t = std::time(nullptr);
+    const char *format = "%T";
+    std::cout << std::put_time(std::localtime(&t), format) << " [" << SERVICE_NAMES[serviceType] << "][" << name << "] "
+              << message << std::endl;
+}

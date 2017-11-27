@@ -5,32 +5,41 @@
 #ifndef SERVICE_H
 #define SERVICE_H
 
-#include "Socket.hpp"
-#include "src/proto/response.pb.h"
+#include <map>
+#include "Server.hpp"
+#include "../build/src/proto/service.pb.h"
 
 namespace NaviRice {
-	namespace Networking {
-		class Service {
-			protected:
-			NaviRice::Networking::Socket server;
-			std::string name;
-			std::string ipAddress;
-			int port;
+    namespace Networking {
+        class Service {
+            struct Route {
+                navirice::proto::Request_Command command;
+                std::string path;
+                std::function<void(std::map<int, std::string> params, std::map<int, std::string> options,
+                                   void *body)> handler;
+            };
 
-			public:
-			virtual void onWaitingForConnection() {};
+            NaviRice::Networking::Server *server;
+            std::vector<Route> routes;
+            std::string name;
+            navirice::proto::Service serviceType;
 
-			virtual void onAcceptConnection(sockaddr_in clientAddress) {};
+            void log(std::string message);
 
-			virtual void onReceiveData(navirice::proto::Response) {};
+        public:
+            Service(std::string ipAddress, int port, std::string name, navirice::proto::Service serviceType);
 
-			Service(std::string, std::string, int);
+            void start();
 
-			void start();
+            void addRoute(navirice::proto::Request_Command command,
+                          std::string path,
+                          std::function<void(std::map<int, std::string> params,
+                                             std::map<int, std::string> options,
+                                             void *body)> handler);
 
-			void stop();
-		};
-	}
+            void stop();
+        };
+    }
 }
 
 

@@ -14,6 +14,7 @@ message Request {
         DESTROY = 4;
         SUBSCRIBE = 5;
         UNSUBSCRIBE = 6;
+        REMOTE_PROCEDURE_CALL = 7;
     }
 
     Command command = 1;

@@ -17,6 +17,8 @@ int main(int argc, char* argv[]) {
     });
     client.connect("127.0.0.1", 8080);
 
+    std::cout << "Please enter command(0-7) path(string) options(string):";
+
     int command;
     std::string path;
     std::string options;
@@ -30,5 +32,6 @@ int main(int argc, char* argv[]) {
         request.set_resource(path);
         request.set_options(options);
         client.send(request);
+        std::cout << "Please enter:\ncommand(0-7) path(string) options()\n";
     }
 }

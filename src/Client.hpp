@@ -13,9 +13,15 @@
 namespace NaviRice {
     namespace Networking {
         class Client {
+            static const std::string COMMAND_NAMES[];
+            static const std::string STATUS_NAMES[];
             NaviRice::Networking::Socket socket;
             std::function<void(navirice::proto::Response)> onReceiveDataCallback;
             std::function<void()> onConnectedCallback;
+
+            void log(std::string message);
+            void logRequest(navirice::proto::Request request);
+            void logResponse(navirice::proto::Response response);
         public:
             Client();
             void onReceiveData(std::function<void(navirice::proto::Response)> onReceiveDataCallback);

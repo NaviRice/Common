@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include "../Client.h"
+#include "../Client.hpp"
 #include "src/proto/response.pb.h"
 
 int main(int argc, char* argv[]) {
@@ -18,10 +18,17 @@ int main(int argc, char* argv[]) {
     client.connect("127.0.0.1", 8080);
 
     int command;
+    std::string path;
+    std::string options;
+
     while(true) {
         std::cin >> command;
+        std::cin >> path;
+        std::cin >> options;
         navirice::proto::Request request;
         request.set_command((navirice::proto::Request_Command)command);
+        request.set_resource(path);
+        request.set_options(options);
         client.send(request);
     }
 }

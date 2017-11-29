@@ -12,11 +12,19 @@
 namespace NaviRice {
     namespace Networking {
         class Service {
+            static const std::string SERVICE_NAMES[];
+            static const std::string COMMAND_NAMES[];
+            static const std::string STATUS_NAMES[];
+
             struct Route {
                 navirice::proto::Request_Command command;
                 std::string path;
-                std::function<void(std::map<int, std::string> params, std::map<int, std::string> options,
-                                   void *body)> handler;
+                std::function<void(
+                        std::map<std::string, std::string> params,
+                        std::map<std::string, std::string> options,
+                        const char *body,
+                        std::function<void(navirice::proto::Response)> respond
+                )> handler;
             };
 
             NaviRice::Networking::Server *server;
@@ -25,6 +33,10 @@ namespace NaviRice {
             navirice::proto::Service serviceType;
 
             void log(std::string message);
+            void logRequest(navirice::proto::Request request);
+            void logResponse(navirice::proto::Request request, navirice::proto::Response response);
+
+            virtual void setupRoutes() = 0;
 
         public:
             Service(std::string ipAddress, int port, std::string name, navirice::proto::Service serviceType);
@@ -33,9 +45,12 @@ namespace NaviRice {
 
             void addRoute(navirice::proto::Request_Command command,
                           std::string path,
-                          std::function<void(std::map<int, std::string> params,
-                                             std::map<int, std::string> options,
-                                             void *body)> handler);
+                          std::function<void(
+                                  std::map<std::string, std::string> params,
+                                  std::map<std::string, std::string> options,
+                                  const char *body,
+                                  std::function<void(navirice::proto::Response)> respond
+                          )> handler);
 
             void stop();
         };

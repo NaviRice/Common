@@ -3,16 +3,30 @@
 //
 
 #include "../Service.hpp"
+#include "../../build/src/proto/response.pb.h"
+
+class TestingService : public NaviRice::Networking::Service {
+    void setupRoutes() override {
+        addRoute(navirice::proto::Request_Command::Request_Command_CREATE, "/",
+                 [](std::map<std::string, std::string> params,
+                    std::map<std::string, std::string> options,
+                    const char *body,
+                    std::function<void(navirice::proto::Response)> respond) {
+                     navirice::proto::Response response;
+                     response.set_status(navirice::proto::Response_Status_SUCCESS);
+                     respond(response);
+                 });
+    }
+
+public:
+    TestingService(std::string ipAddress, int port, std::string name) :
+            Service(ipAddress, port, name, navirice::proto::RENDERING) {
+    }
+};
 
 int main(int argc, char *argv[]) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-    NaviRice::Networking::Service service("0.0.0.0", 8080, "Rendering Service 1", navirice::proto::RENDERING);
-    service.addRoute(navirice::proto::Request_Command::Request_Command_CREATE, "/",
-                     [](std::map<int, std::string> params,
-                        std::map<int, std::string> options,
-                        void *body) {
-
-                     });
-    service.start();
+    NaviRice::Networking::Service *testingService = new TestingService("0.0.0.0", 8080, "NaviRices 1");
+    testingService->start();
 }

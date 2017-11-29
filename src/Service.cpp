@@ -5,14 +5,35 @@
 #include <iostream>
 #include <iomanip>
 #include "Service.hpp"
+#include "../build/src/proto/response.pb.h"
 
-static const char *SERVICE_NAMES[] = {
-    "COMPUTER_VISION",
-    "MACHINE_LEARNING",
-    "GEOMETRY_PROCESSING",
-    "RENDERING",
-    "HEAD_TRACKING",
-    "IMAGE_PROVIDING"
+const std::string NaviRice::Networking::Service::SERVICE_NAMES[] = {
+        "COMPUTER_VISION",
+        "MACHINE_LEARNING",
+        "GEOMETRY_PROCESSING",
+        "RENDERING",
+        "HEAD_TRACKING",
+        "IMAGE_PROVIDING"
+};
+
+const std::string NaviRice::Networking::Service::COMMAND_NAMES[] = {
+        "INDEX",
+        "CREATE",
+        "SHOW",
+        "UPDATE",
+        "DESTROY",
+        "SUBSCRIBE",
+        "UNSUBSCRIBE",
+        "REMOTE_PROCEDURE_CALL"
+};
+
+const std::string NaviRice::Networking::Service::STATUS_NAMES[] = {
+        "SUCCESS",
+        "BAD_REQUEST",
+        "FORBIDDEN",
+        "NOT_FOUND",
+        "SERVER_INTERNAL_ERROR",
+        "NOT_IMPLEMENTED"
 };
 
 NaviRice::Networking::Service::Service(std::string ipAddress, int port, std::string name,
@@ -23,10 +44,28 @@ NaviRice::Networking::Service::Service(std::string ipAddress, int port, std::str
 }
 
 void NaviRice::Networking::Service::start() {
-    server->onReceiveData([](int clientDescriptor, navirice::proto::Request request) {
-        std::cout << "Command: " << request.command() << std::endl;
-        std::cout << "Resource: " << request.resource() << std::endl;
-        std::cout << "Options: " << request.options() << std::endl;
+    Service *service = this;
+
+    server->onReceiveData([service](int clientDescriptor, navirice::proto::Request request) {
+        navirice::proto::Response response;
+        response.set_status(navirice::proto::Response_Status_SUCCESS);
+        service->server->send(clientDescriptor, response);
+        service->logRequest(request);
+
+        std::map<std::string, std::string> params;
+        std::map<std::string, std::string> options;
+        const char *body = request.body().c_str();
+
+        for (Route route : service->routes) {
+            if (route.command == request.command() && request.resource() == route.path) {
+                route.handler(params, options, body,
+                              [service, clientDescriptor, request](navirice::proto::Response response) {
+                                  service->server->send(clientDescriptor, response);
+                                  service->logResponse(request, response);
+                              });
+                return;
+            }
+        }
     });
     server->onAcceptConnection([](sockaddr_in clientIp) {
 
@@ -34,13 +73,17 @@ void NaviRice::Networking::Service::start() {
     server->onWaitingForConnection([this]() {
         this->log("Service started.");
     });
+    setupRoutes();
     server->start();
 }
 
 void NaviRice::Networking::Service::addRoute(navirice::proto::Request_Command command, std::string path,
-                                             std::function<void(std::map<int, std::string> params,
-                                                                std::map<int, std::string> options,
-                                                                void *body)> handler) {
+                                             std::function<void(
+                                                     std::map<std::string, std::string> params,
+                                                     std::map<std::string, std::string> options,
+                                                     const char *body,
+                                                     std::function<void(navirice::proto::Response)> response
+                                             )> handler) {
     Route route;
     route.command = command;
     route.path = path;
@@ -58,4 +101,13 @@ void NaviRice::Networking::Service::log(std::string message) {
     const char *format = "%T";
     std::cout << std::put_time(std::localtime(&t), format) << " [" << SERVICE_NAMES[serviceType] << "][" << name << "] "
               << message << std::endl;
+}
+
+void NaviRice::Networking::Service::logRequest(navirice::proto::Request request) {
+    log(COMMAND_NAMES[request.command()] + " " + request.resource() + " " + request.options());
+}
+
+void NaviRice::Networking::Service::logResponse(navirice::proto::Request request, navirice::proto::Response response) {
+    log(COMMAND_NAMES[request.command()] + " " + request.resource() + " " + request.options() +
+        " -> " + STATUS_NAMES[response.status()]);
 }

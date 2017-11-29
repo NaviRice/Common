@@ -81,8 +81,9 @@ void NaviRice::Networking::Socket::receive(void *receiveParams) {
 	delete (struct ReceiveParams*)receiveParams;
 
 	while (true) {
-		if ((buffer.length = read(params.descriptor, buffer.data, BUFFER_SIZE)) > 0)
-			params.socket->onReceiveDataCallback(params.descriptor, buffer);
+		if ((buffer.length = read(params.descriptor, buffer.data, BUFFER_SIZE)) > 0) {
+            params.socket->onReceiveDataCallback(params.descriptor, buffer);
+        }
 	}
 }
 
@@ -102,7 +103,7 @@ void NaviRice::Networking::Socket::connect(std::string ipAddress, int port) {
 		return;
 	}
 	this->onConnectedCallback();
-	
+
 	struct ReceiveParams* receiveParams = new ReceiveParams();
 	receiveParams->socket = this;
 	receiveParams->descriptor = this->descriptor;

@@ -20,8 +20,6 @@ message Request {
     Command command = 1;
     string resource = 2;
     string options = 3;
-    Service source = 4;
-    Service destination = 5;
     sint64 time = 6;
     ContentType contentType = 7;
     int32 payloadLength = 8;

@@ -17,8 +17,6 @@ message Response {
 
     string resource = 1;
     Status status = 2;
-    Service source = 3;
-    Service destination = 4;
     sint64 time = 5;
     ContentType contentType = 6;
     int32 payloadLength = 7;

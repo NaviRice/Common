@@ -104,12 +104,13 @@ void NaviRice::Networking::Socket::connect(std::string ipAddress, int port) {
 	}
 	this->onConnectedCallback();
 
+
 	struct ReceiveParams* receiveParams = new ReceiveParams();
 	receiveParams->socket = this;
 	receiveParams->descriptor = this->descriptor;
 
 	std::thread receiveThread(&Socket::receive, this, receiveParams);
-	receiveThread.detach();
+    receiveThread.detach();
 }
 
 

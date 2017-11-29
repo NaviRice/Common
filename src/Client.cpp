@@ -4,7 +4,17 @@
 
 #include <iostream>
 #include <iomanip>
+#include <tiff.h>
 #include "Client.hpp"
+
+const std::string NaviRice::Networking::Client::SERVICE_NAMES[] = {
+        "COMPUTER_VISION",
+        "MACHINE_LEARNING",
+        "GEOMETRY_PROCESSING",
+        "RENDERING",
+        "HEAD_TRACKING",
+        "IMAGE_PROVIDING"
+};
 
 const std::string NaviRice::Networking::Client::COMMAND_NAMES[] = {
         "INDEX",
@@ -26,13 +36,14 @@ const std::string NaviRice::Networking::Client::STATUS_NAMES[] = {
         "NOT_IMPLEMENTED"
 };
 
-NaviRice::Networking::Client::Client() {
+NaviRice::Networking::Client::Client(std::string name, navirice::proto::Service serviceType) {
+    this->name = name;
+    this->serviceType = serviceType;
 }
 
 void NaviRice::Networking::Client::connect(std::string ipAddress, int port) {
     Client *client = this;
     socket.onReceiveData([client](int descriptor, NaviRice::Networking::Buffer buffer) -> void {
-        std::cout << "++++" << std::endl;
         navirice::proto::Response response;
         response.ParseFromArray(buffer.data, buffer.length);
         client->logResponse(response);
@@ -54,6 +65,8 @@ void NaviRice::Networking::Client::onConnected(std::function<void()> onConnected
 }
 
 void NaviRice::Networking::Client::send(navirice::proto::Request request) {
+    std::time_t t = std::time(nullptr);
+    request.set_time((int64) t);
     int length = request.ByteSizeLong();
     char buffer[BUFFER_SIZE];
     request.SerializeToArray(&buffer, length);
@@ -64,7 +77,8 @@ void NaviRice::Networking::Client::send(navirice::proto::Request request) {
 void NaviRice::Networking::Client::log(std::string message) {
     std::time_t t = std::time(nullptr);
     const char *format = "%T";
-    std::cout << std::put_time(std::localtime(&t), format) << " " << message << std::endl;
+    std::cout << std::put_time(std::localtime(&t), format) << " [" << SERVICE_NAMES[serviceType] << "][" << name << "] "
+              << message << std::endl;
 }
 
 void NaviRice::Networking::Client::logRequest(navirice::proto::Request request) {

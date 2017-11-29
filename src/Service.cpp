@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <tiff.h>
 #include "Service.hpp"
 #include "../build/src/proto/response.pb.h"
 
@@ -60,6 +61,9 @@ void NaviRice::Networking::Service::start() {
             if (route.command == request.command() && request.resource() == route.path) {
                 route.handler(params, options, body,
                               [service, clientDescriptor, request](navirice::proto::Response response) {
+                                  response.set_resource(request.resource());
+                                  std::time_t t = std::time(nullptr);
+                                  response.set_time((int64)t);
                                   service->server->send(clientDescriptor, response);
                                   service->logResponse(request, response);
                               });

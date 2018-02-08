@@ -3,7 +3,7 @@
 //
 
 #include "../Service.hpp"
-#include "../../build/src/proto/response.pb.h"
+#include "src/proto/response.pb.h"
 
 class TestingService : public NaviRice::Networking::Service {
     void setupRoutes() override {

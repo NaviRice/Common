@@ -71,8 +71,8 @@ void NaviRice::Networking::Service::start() {
             }
         }
     });
-    server->onAcceptConnection([](sockaddr_in clientIp) {
-
+    server->onAcceptConnection([this](sockaddr_in clientIp) {
+        this->log("Accept connection");
     });
     server->onWaitingForConnection([this]() {
         this->log("Service started.");

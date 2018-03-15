@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include <tiff.h>
 #include "Client.hpp"
 
 const std::string NaviRice::Networking::Client::SERVICE_NAMES[] = {

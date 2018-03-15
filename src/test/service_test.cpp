@@ -2,6 +2,7 @@
 // Created by Yang Liu on 11/17/17.
 //
 
+#include <iostream>
 #include "../Service.hpp"
 #include "src/proto/response.pb.h"
 
@@ -26,6 +27,14 @@ public:
 int main(int argc, char *argv[]) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-    NaviRice::Networking::Service *testingService = new TestingService("0.0.0.0", 8080, "NaviRices 1");
+    if(argc != 3) {
+        std::cout << "Usage: service [ip address] [port]" << std::endl;
+        return 1;
+    }
+
+    std::string ipAddress = argv[1];
+    int port = std::stoi(argv[2]);
+
+    NaviRice::Networking::Service *testingService = new TestingService(ipAddress, port, "1");
     testingService->start();
 }

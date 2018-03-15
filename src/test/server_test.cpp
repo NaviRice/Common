@@ -9,7 +9,15 @@
 int main(int argc, char* argv[]) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-    NaviRice::Networking::Server server("0.0.0.0", 8080);
+    if(argc != 3) {
+        std::cout << "Usage: service [ip address] [port]" << std::endl;
+        return 1;
+    }
+
+    std::string ipAddress = argv[1];
+    int port = std::stoi(argv[2]);
+
+    NaviRice::Networking::Server server(ipAddress, port);
     server.onWaitingForConnection([&server](void) -> void {
         std::cout << "Waiting for connection" << std::endl;
 

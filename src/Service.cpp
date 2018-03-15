@@ -59,7 +59,8 @@ void NaviRice::Networking::Service::start() {
     });
     server->onWaitingForConnection([this]() {
         this->log("Service started.");
-        this->onServiceStartedCallback();
+        if(onServiceStartedCallback != nullptr)
+        onServiceStartedCallback();
     });
     setupRoutes();
     server->start();

@@ -7,10 +7,9 @@
 
 class TestingService : public NaviRice::Networking::Service {
     void setupRoutes() override {
-        addRoute(navirice::proto::Request_Command::Request_Command_CREATE, "/",
-                 [](std::map<std::string, std::string> params,
-                    std::map<std::string, std::string> options,
-                    const char *body,
+        addRoute(navirice::proto::Request_Type::Request_Type_CURRENT_STEP,
+                 [](const char *body,
+                    unsigned long bodyLength,
                     std::function<void(navirice::proto::Response)> respond) {
                      navirice::proto::Response response;
                      response.set_status(navirice::proto::Response_Status_SUCCESS);

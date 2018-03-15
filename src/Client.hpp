@@ -7,6 +7,7 @@
 
 
 #include "Socket.hpp"
+#include "src/proto/service.pb.h"
 #include "src/proto/response.pb.h"
 #include "src/proto/request.pb.h"
 

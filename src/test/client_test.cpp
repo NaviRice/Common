@@ -4,8 +4,7 @@
 
 #include <iostream>
 #include "../Client.hpp"
-#include "src/proto/response.pb.h"
-#include "src/proto/service.pb.h"
+#include <src/proto/step.pb.h>
 
 int main(int argc, char *argv[]) {
     if(argc != 3) {
@@ -27,22 +26,35 @@ int main(int argc, char *argv[]) {
 
     client.connect(ipAddress, port);
 
-    std::cout << "Please enter command(0-7) path(string) options(string) body(string):" << std::endl;
+    std::cout << "Please enter x(double) y(double) description(string) icon(string):" << std::endl;
 
-    int command;
-    std::string path;
-    std::string options;
-    std::string body;
+    navirice::proto::Request_Type type = navirice::proto::Request_Type::Request_Type_CURRENT_STEP;
+    double x;
+    double y;
+    std::string description;
+    std::string icon;
 
     while (true) {
-        std::cin >> command;
-        std::cin >> path;
-        std::cin >> options;
-        std::cin >> body;
+        std::cin >> x;
+        std::cin >> y;
+        std::cin >> description;
+        std::cin >> icon;
+
+        navirice::proto::Step step;
+        step.set_x(x);
+        step.set_y(y);
+        step.set_description(description);
+        step.set_icon(icon);
+
+        std::cout <<step.DebugString()<<std::endl;
+
+        int length = step.ByteSizeLong();
+        char body[BUFFER_SIZE];
+
+        step.SerializeToArray(&body, length);
+
         navirice::proto::Request request;
-        request.set_command((navirice::proto::Request_Command) command);
-        request.set_resource(path);
-        request.set_options(options);
+        request.set_type(type);
         request.set_body(body);
         client.send(request);
     }

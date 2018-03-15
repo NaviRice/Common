@@ -4,9 +4,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include <tiff.h>
 #include "Service.hpp"
-#include "../build/src/proto/response.pb.h"
 
 const std::string NaviRice::Networking::Service::SERVICE_NAMES[] = {
         "COMPUTER_VISION",
@@ -18,22 +16,13 @@ const std::string NaviRice::Networking::Service::SERVICE_NAMES[] = {
 };
 
 const std::string NaviRice::Networking::Service::COMMAND_NAMES[] = {
-        "INDEX",
-        "CREATE",
-        "SHOW",
-        "UPDATE",
-        "DESTROY",
-        "SUBSCRIBE",
-        "UNSUBSCRIBE",
-        "REMOTE_PROCEDURE_CALL"
+        "CURRENT_STEP",
+        "CURRENT_LOCATION",
 };
 
 const std::string NaviRice::Networking::Service::STATUS_NAMES[] = {
         "SUCCESS",
         "BAD_REQUEST",
-        "FORBIDDEN",
-        "NOT_FOUND",
-        "SERVER_INTERNAL_ERROR",
         "NOT_IMPLEMENTED"
 };
 
@@ -50,20 +39,14 @@ void NaviRice::Networking::Service::start() {
     server->onReceiveData([service](int clientDescriptor, navirice::proto::Request request) {
         navirice::proto::Response response;
         response.set_status(navirice::proto::Response_Status_SUCCESS);
-        service->server->send(clientDescriptor, response);
-        service->logRequest(request);
-
-        std::map<std::string, std::string> params;
-        std::map<std::string, std::string> options;
         const char *body = request.body().c_str();
+        unsigned long bodyLength = request.body().length();
 
         for (Route route : service->routes) {
-            if (route.command == request.command() && request.resource() == route.path) {
-                route.handler(params, options, body,
+            if (route.type == request.type()) {
+                route.handler(body,
+                              bodyLength,
                               [service, clientDescriptor, request](navirice::proto::Response response) {
-                                  response.set_resource(request.resource());
-                                  std::time_t t = std::time(nullptr);
-                                  response.set_time((int64)t);
                                   service->server->send(clientDescriptor, response);
                                   service->logResponse(request, response);
                               });
@@ -76,21 +59,16 @@ void NaviRice::Networking::Service::start() {
     });
     server->onWaitingForConnection([this]() {
         this->log("Service started.");
+        this->onServiceStartedCallback();
     });
     setupRoutes();
     server->start();
 }
 
-void NaviRice::Networking::Service::addRoute(navirice::proto::Request_Command command, std::string path,
-                                             std::function<void(
-                                                     std::map<std::string, std::string> params,
-                                                     std::map<std::string, std::string> options,
-                                                     const char *body,
-                                                     std::function<void(navirice::proto::Response)> response
-                                             )> handler) {
+void NaviRice::Networking::Service::addRoute(navirice::proto::Request_Type type,
+                                             NaviRice::Networking::Service::RequestHandler handler) {
     Route route;
-    route.command = command;
-    route.path = path;
+    route.type = type;
     route.handler = handler;
 
     routes.push_back(route);
@@ -108,10 +86,13 @@ void NaviRice::Networking::Service::log(std::string message) {
 }
 
 void NaviRice::Networking::Service::logRequest(navirice::proto::Request request) {
-    log(COMMAND_NAMES[request.command()] + " " + request.resource() + " " + request.options());
+    log(COMMAND_NAMES[request.type()]);
 }
 
 void NaviRice::Networking::Service::logResponse(navirice::proto::Request request, navirice::proto::Response response) {
-    log(COMMAND_NAMES[request.command()] + " " + request.resource() + " " + request.options() +
-        " -> " + STATUS_NAMES[response.status()]);
+    log(COMMAND_NAMES[request.type()]);
+}
+
+void NaviRice::Networking::Service::onServiceStarted(std::function<void()> onServiceStartedCallback) {
+    this->onServiceStartedCallback = onServiceStartedCallback;
 }

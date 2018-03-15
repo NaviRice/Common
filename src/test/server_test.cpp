@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
     server.onReceiveData([&server](int clientDescriptor, navirice::proto::Request request) -> void {
         std::cout << "Server received: " << request.DebugString() << std::endl;
         navirice::proto::Response response;
-        response.set_status(navirice::proto::Response::Status::Response_Status_FORBIDDEN);
+        response.set_status(navirice::proto::Response::Status::Response_Status_SUCCESS);
         server.send(clientDescriptor, response);
     });
     server.onAcceptConnection([&server](sockaddr_in clientAddress)->void {

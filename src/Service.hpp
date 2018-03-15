@@ -6,8 +6,8 @@
 #define SERVICE_H
 
 #include <map>
+#include "src/proto/service.pb.h"
 #include "Server.hpp"
-#include "../build/src/proto/service.pb.h"
 
 namespace NaviRice {
     namespace Networking {
@@ -16,21 +16,23 @@ namespace NaviRice {
             static const std::string COMMAND_NAMES[];
             static const std::string STATUS_NAMES[];
 
+            typedef std::function<void(
+                    const char *body,
+                    unsigned long bodyLength,
+                    std::function<void(navirice::proto::Response)> respond
+            )> RequestHandler;
+
             struct Route {
-                navirice::proto::Request_Command command;
-                std::string path;
-                std::function<void(
-                        std::map<std::string, std::string> params,
-                        std::map<std::string, std::string> options,
-                        const char *body,
-                        std::function<void(navirice::proto::Response)> respond
-                )> handler;
+                navirice::proto::Request_Type type;
+                RequestHandler handler;
             };
 
             NaviRice::Networking::Server *server;
             std::vector<Route> routes;
             std::string name;
             navirice::proto::Service serviceType;
+
+            std::function<void()> onServiceStartedCallback;
 
             void log(std::string message);
             void logRequest(navirice::proto::Request request);
@@ -41,16 +43,11 @@ namespace NaviRice {
         public:
             Service(std::string ipAddress, int port, std::string name, navirice::proto::Service serviceType);
 
+            void onServiceStarted(std::function<void()> onServiceStartedCallback);
+
             void start();
 
-            void addRoute(navirice::proto::Request_Command command,
-                          std::string path,
-                          std::function<void(
-                                  std::map<std::string, std::string> params,
-                                  std::map<std::string, std::string> options,
-                                  const char *body,
-                                  std::function<void(navirice::proto::Response)> respond
-                          )> handler);
+            void addRoute(navirice::proto::Request_Type type, RequestHandler handler);
 
             void stop();
         };

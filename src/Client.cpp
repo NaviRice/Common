@@ -17,22 +17,13 @@ const std::string NaviRice::Networking::Client::SERVICE_NAMES[] = {
 };
 
 const std::string NaviRice::Networking::Client::COMMAND_NAMES[] = {
-        "INDEX",
-        "CREATE",
-        "SHOW",
-        "UPDATE",
-        "DESTROY",
-        "SUBSCRIBE",
-        "UNSUBSCRIBE",
-        "REMOTE_PROCEDURE_CALL"
+        "CURRENT_STEP",
+        "CURRENT_LOCATION",
 };
 
 const std::string NaviRice::Networking::Client::STATUS_NAMES[] = {
         "SUCCESS",
         "BAD_REQUEST",
-        "FORBIDDEN",
-        "NOT_FOUND",
-        "SERVER_INTERNAL_ERROR",
         "NOT_IMPLEMENTED"
 };
 
@@ -65,8 +56,6 @@ void NaviRice::Networking::Client::onConnected(std::function<void()> onConnected
 }
 
 void NaviRice::Networking::Client::send(navirice::proto::Request request) {
-    std::time_t t = std::time(nullptr);
-    request.set_time((int64) t);
     int length = request.ByteSizeLong();
     char buffer[BUFFER_SIZE];
     request.SerializeToArray(&buffer, length);
@@ -82,7 +71,7 @@ void NaviRice::Networking::Client::log(std::string message) {
 }
 
 void NaviRice::Networking::Client::logRequest(navirice::proto::Request request) {
-    log(COMMAND_NAMES[request.command()] + " " + request.resource() + " " + request.options());
+    log(COMMAND_NAMES[request.type()]);
 }
 
 void NaviRice::Networking::Client::logResponse(navirice::proto::Response response) {

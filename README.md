@@ -2,7 +2,7 @@
 
 # NaviRice Common
 
-The command module shared between all the services
+The common module shared between all the services
 
 ## Getting Started
 [Here](https://github.com/NaviRice/Services) is the detailed instructions on compiling and running example server, service and client.

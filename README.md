@@ -1,14 +1,11 @@
 <img src="logo_small.png" align="right" />
 
 # NaviRice Common
-Common libraries and protocol buffers
+
+The command module shared between all the services
 
 ## Getting Started
-
-### Prerequisites
-### Installing
-
-## Deployment
+[Here](https://github.com/NaviRice/Services) is the detailed instructions on compiling and running example server, service and client.
 
 ## Contributing
 When contributing to this repository, please first discuss the change you wish to make via issue, email, or Facebook group chat with the owners of this repository before making a change.
@@ -23,13 +20,8 @@ When contributing to this repository, please first discuss the change you wish t
 
 ## Authors
 
-- **Alex Gaines** - *Initial work* - [roboman2444](https://github.com/roboman2444)
-
-- **Binam Kayastha** - *Initial work* - [binamkayastha](https://github.com/binamkayastha)
-
-- **Can Alper** - *Initial work* - [calper-ql](https://github.com/calper-ql)
-
 - **Yang Liu** - *Initial work* - [byliuyang](https://github.com/byliuyang)
+- **Can Alper** - *Optimized server performance* - [calper-ql](https://github.com/calper-ql)
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details

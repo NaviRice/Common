@@ -26,23 +26,23 @@ int main(int argc, char *argv[]) {
 
     client.connect(ipAddress, port);
 
-    std::cout << "Please enter x(double) y(double) description(string) icon(string):" << std::endl;
+    std::cout << "Please enter latitude(double) longitude(double) description(string) icon(string):" << std::endl;
 
     navirice::proto::Request_Type type = navirice::proto::Request_Type::Request_Type_CURRENT_STEP;
-    double x;
-    double y;
+    double latitude;
+    double longitude;
     std::string description;
     std::string icon;
 
     while (true) {
-        std::cin >> x;
-        std::cin >> y;
+        std::cin >> latitude;
+        std::cin >> longitude;
         std::cin >> description;
         std::cin >> icon;
 
         navirice::proto::Step step;
-        step.set_x(x);
-        step.set_y(y);
+        step.set_latitude(latitude);
+        step.set_longitude(longitude);
         step.set_description(description);
         step.set_icon(icon);
 

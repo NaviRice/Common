@@ -3,8 +3,8 @@ syntax = "proto3";
 package navirice.proto;
 
 message Step {
-    double x = 1;
-    double y = 2;
+    double longitude = 1;
+    double latitude = 2;
     string description = 3;
     string icon = 4;
 }

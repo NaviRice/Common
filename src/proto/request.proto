@@ -8,5 +8,6 @@ message Request {
         CURRENT_LOCATION = 1;
     }
     Type type = 1;
-    bytes body = 2;
+    uint32 length = 2;
+    bytes body = 3;
 }
